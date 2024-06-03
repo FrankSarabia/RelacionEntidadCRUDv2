@@ -1,54 +1,48 @@
 package com.example.EjercicioRelacionEntidad.security;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
 
-
+    @Autowired
+    private AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
-    @Order(1)
-    public SecurityFilterChain puestoSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/puesto/**")
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().hasRole("ADMIN")
-                )
-                .httpBasic(withDefaults());
-        return http.build();
+    AuthenticationManager authenticationManager() throws Exception{
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
+    /*Con esta clase podre devolver una psw cifrada con Spring Security*/
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain anySecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(withDefaults());
-        return http.build();
-    }
-
-    @Bean
-    //Aqui se crean dos usuarios ficticios uno admin y otro user para roles distintos
-        public UserDetailsService userDetailsService() throws Exception {
-            // ensure the passwords are encoded properly
-            User.UserBuilder users = User.withDefaultPasswordEncoder();
-            InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-            manager.createUser(users.username("user").password("password").roles("USER").build());
-            manager.createUser(users.username("admin").password("password").roles("USER","ADMIN").build());
-            return manager;
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.authorizeHttpRequests((authz) -> authz
+                    .requestMatchers(HttpMethod.GET,"/security/usuarios").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/security/registrar").permitAll()
+                    .anyRequest().authenticated())
+                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilter(new JwtValidationFilter(authenticationManager()))
+                .csrf(config -> config.disable())
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
     }
 }
