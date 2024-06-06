@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class DetallesUsuarioService implements UserDetailsService {
-    //Inyectamos el repo
     @Autowired
     private UserRepository usuarioRepository;
 
@@ -30,15 +29,13 @@ public class DetallesUsuarioService implements UserDetailsService {
         Optional<Usuario> usuarioOptional = this.usuarioRepository.findByUsername(username);
 
         if(usuarioOptional.isEmpty()){
-            throw new UsernameNotFoundException(String.format("El usuario: %s no existe dentro del sistema", username));
+            throw new UsernameNotFoundException(String.format("El usuario: %s no existe", username));
         }
         Usuario result = usuarioOptional.orElseThrow();
         List<GrantedAuthority> authorities = result.getRoles().stream()
                 .map(rol -> new SimpleGrantedAuthority(rol.getNombre()))
                 .collect(Collectors.toList());
 
-
-        /*Usamor la clase User del spring security*/
         return new User(
                 result.getUsername(),
                 result.getPassword(),

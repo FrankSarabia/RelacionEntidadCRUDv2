@@ -23,14 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
+
     public JwtValidationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
-
-
-    /*Con este metodo se estara validando que el Token que se envie en el header de la peticion sea
-     * correcto con el que se tiene registrado. Es en esta clase que se configura el acceso a los recursos
-     * */
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -47,7 +43,6 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
         try{
             Claims claims = Jwts.parser().verifyWith(TokenJwtConfig.SECRET_KEY).build().parseSignedClaims(token).getPayload();
             String usename = claims.getSubject();
-            //String usename2 = (String) claims.get("username");
             Object authoritiesClaims = claims.get("authorities");
 
             Collection<? extends GrantedAuthority> authorities = Arrays.asList(
@@ -72,6 +67,5 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(TokenJwtConfig.CONTENT_TYPE);
         }
-
     }
 }

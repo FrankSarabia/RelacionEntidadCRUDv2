@@ -14,7 +14,6 @@ import java.util.Map;
 @RequestMapping("/security")
 public class UsuarioController {
 
-    //Inyectamos el servicio
     @Autowired
     private UsuarioService usuarioServicio;
 
@@ -37,9 +36,6 @@ public class UsuarioController {
         }
     }
 
-
-    /*Este metodo debe de ser privado para cualquier peticion, ya que permite la creacion
-     * de usuarios con rol ADMIN*/
     @PostMapping("usuarios")
     public ResponseEntity<Map<String,Object>> agregarUsuario(@RequestBody Usuario usr){
         try{
@@ -62,17 +58,6 @@ public class UsuarioController {
 
                 return new ResponseEntity<>(json,HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            /*
-            Porcion de codigo del video sin validar duplicados
-            Map<String,Object> json = new HashMap<>();
-            usr.setHabilitado(true);
-            json.put("data", this.usuarioServicio.save(usr));
-            json.put("message","Usuario agregado correctamente...");
-            json.put("status", HttpStatus.CREATED);
-
-            return new ResponseEntity<>(json, HttpStatus.CREATED);
-
-             */
         }catch(Exception e){
             Map<String,Object> json = new HashMap<>();
 
@@ -83,9 +68,6 @@ public class UsuarioController {
         }
     }
 
-    /*Este metodo puede ser publico para cualquier request ya que permite el registro
-     * (agregar) cualquuier usuario al sistema, pero con la diferencia que unicamente
-     * con el rol de Usuario normal, sin permisos de admin.*/
     @PostMapping("registrar")
     public ResponseEntity<Map<String,Object>> registrarUsuario(@RequestBody Usuario usr){
         try{
@@ -96,7 +78,7 @@ public class UsuarioController {
             int resultado = this.usuarioServicio.guardarUsuario(usr);
 
             if(resultado == 1){
-                json.put("message","Usuario registrado correctamente...");
+                json.put("message","Usuario registrado correctamente!");
                 json.put("status", HttpStatus.CREATED);
 
                 return new ResponseEntity<>(json, HttpStatus.CREATED);
