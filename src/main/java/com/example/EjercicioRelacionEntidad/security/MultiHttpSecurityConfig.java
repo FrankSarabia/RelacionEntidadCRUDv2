@@ -38,6 +38,7 @@ public class MultiHttpSecurityConfig {
         return http.authorizeHttpRequests((authz) -> authz
                     .requestMatchers(HttpMethod.GET,"/security/usuarios").permitAll()
                     .requestMatchers(HttpMethod.POST,"/security/registrar").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/actuator/**").permitAll()
                     .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))
