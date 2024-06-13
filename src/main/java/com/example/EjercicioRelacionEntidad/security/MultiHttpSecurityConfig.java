@@ -36,7 +36,7 @@ public class MultiHttpSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests((authz) -> authz
-                    .requestMatchers(HttpMethod.GET,"/security/usuarios").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/security/usuarios","/profile").permitAll()
                     .requestMatchers(HttpMethod.POST,"/security/registrar").permitAll()
                     .requestMatchers(HttpMethod.GET,"/actuator/**").permitAll()
                     .anyRequest().authenticated())
